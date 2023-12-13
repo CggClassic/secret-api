@@ -15,7 +15,7 @@
         }
 
         #secretForm, #secretLink {
-            max-width: 600px; /* Увеличиваем максимальную ширину формы */
+            max-width: 600px;
             width: 100%;
             padding: 20px;
             border: 1px solid #ccc;
@@ -29,8 +29,8 @@
         }
 
         #secretInput {
-            width: 100%; /* Занимаем 100% ширины родительского блока */
-            box-sizing: border-box; /* Чтобы ширина включала в себя padding */
+            width: 100%;
+            box-sizing: border-box;
         }
     </style>
 </head>
@@ -55,8 +55,19 @@
     function generateLink() {
         var secret = document.getElementById("secretInput").value;
 
+        // Создание объекта с данными
+        var data = {
+            secret: secret
+        };
+
         // Отправка запроса на сервер для создания одноразовой ссылки
-        fetch("/generate?secret=" + encodeURIComponent(secret))
+        fetch("/generate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        })
             .then(response => response.json())
             .then(data => {
                 // Скрытие формы и отображение ссылки

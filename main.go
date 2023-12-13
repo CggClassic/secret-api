@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"io"
 	"net/http"
 	"strings"
 	"sync"
@@ -35,11 +36,31 @@ func generateToken() string {
 
 // Обработчик POST запроса для создания одноразовой ссылки на секрет.
 func generateHandler(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+	// Чтение тела запроса
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
+		http.Error(w, "Error reading request body", http.StatusBadRequest)
 		return
 	}
-	secretText := r.Form.Get("secret")
+
+	// Закрытие тела запроса после чтения
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+	}(r.Body)
+
+	// Декодирование JSON из тела запроса в структуру SecretRequest
+	var secretRequest struct {
+		SecretText string `json:"secret"`
+	}
+
+	err = json.Unmarshal(body, &secretRequest)
+	if err != nil {
+		http.Error(w, "Error decoding JSON", http.StatusBadRequest)
+		return
+	}
 
 	// Генерация уникального токена для секрета
 	token := generateToken()
@@ -57,7 +78,7 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Сохранение секрета и его токена
 	mu.Lock()
-	secrets[token] = Secret{SecretText: secretText, CreatedAt: time.Now(), Used: false}
+	secrets[token] = Secret{SecretText: secretRequest.SecretText, CreatedAt: time.Now(), Used: false}
 	mu.Unlock()
 
 	// Формирование и отправка JSON-ответа с одноразовой ссылкой
@@ -70,6 +91,7 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(response)
 	if err != nil {
+		http.Error(w, "Error encoding JSON response", http.StatusInternalServerError)
 		return
 	}
 }
