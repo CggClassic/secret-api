@@ -78,7 +78,7 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 func indexHandler(w http.ResponseWriter, _ *http.Request) {
 
 	// Отправка HTML-страницы с формой ввода
-	tmpl, err := template.ParseFiles("./index.html")
+	tmpl, err := template.ParseFiles("/app/index.html")
 	if err != nil {
 		fmt.Println("Error parsing template:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -121,7 +121,7 @@ func retrieveHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Использование шаблона retrieve.html
-		tmpl, err := template.ParseFiles("./retrieve.html")
+		tmpl, err := template.ParseFiles("/app/retrieve.html")
 		if err != nil {
 			fmt.Println("Error parsing template:", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -148,7 +148,7 @@ func retrieveHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Использование шаблона retrieve.html
-	tmpl, err := template.ParseFiles("./retrieve.html")
+	tmpl, err := template.ParseFiles("/app/retrieve.html")
 	if err != nil {
 		fmt.Println("Error parsing template:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
