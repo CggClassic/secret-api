@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Sharing</title>
+
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #secretForm, #secretLink {
+            max-width: 600px; /* Увеличиваем максимальную ширину формы */
+            width: 100%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+
+        #secretLink {
+            display: none;
+        }
+
+        #secretInput {
+            width: 100%; /* Занимаем 100% ширины родительского блока */
+            box-sizing: border-box; /* Чтобы ширина включала в себя padding */
+        }
+    </style>
+</head>
+<body>
+<div id="secretForm">
+    <h2>Введите ваш секрет:</h2>
+    <textarea id="secretInput" rows="4" oninput="autoResize(this)" required></textarea>
+    <button type="button" onclick="generateLink()">Создать ссылку</button>
+</div>
+
+<div id="secretLink">
+    <h2>Одноразовая ссылка:</h2>
+    <p id="link"></p>
+</div>
+
+<script>
+    function autoResize(element) {
+        element.style.height = "auto";
+        element.style.height = (element.scrollHeight) + "px";
+    }
+
+    function generateLink() {
+        var secret = document.getElementById("secretInput").value;
+
+        // Отправка запроса на сервер для создания одноразовой ссылки
+        fetch("/generate?secret=" + encodeURIComponent(secret))
+            .then(response => response.json())
+            .then(data => {
+                // Скрытие формы и отображение ссылки
+                document.getElementById("secretForm").style.display = "none";
+                document.getElementById("secretLink").style.display = "block";
+
+                // Отображение одноразовой ссылки
+                document.getElementById("link").innerHTML = "<a href='" + data.link + "' target='_blank'>" + data.link + "</a>";
+            })
+            .catch(error => console.error('Error:', error));
+    }
+</script>
+</body>
+</html>
